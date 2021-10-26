@@ -1,24 +1,31 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import { Route, BrowserRouter as Router, Switch } from "react-router-dom";
+import ROUTES from "./routes/Routes";
+import AppLayout from "./applayout/AppLayout";
+import { Suspense } from "react";
+import Loader from "components/Loader/Loader";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Suspense fallback={<Loader />}>
+      <Router>
+        <Switch>
+          {Object.values(ROUTES).map(({ component: Component, ...rest }) => {
+            const AuthComponent = () => (
+              <AppLayout>
+                <Component />
+              </AppLayout>
+            );
+
+            return (
+              <Route {...rest}>
+                {rest.isPrivate ? AuthComponent : <Component />}
+              </Route>
+            );
+          })}
+        </Switch>
+      </Router>
+    </Suspense>
   );
 }
 
