@@ -1,56 +1,32 @@
 import "./App.css";
-import { Route, BrowserRouter as Router, Switch } from "react-router-dom";
+import useAuth from "contexts/UserContext";
+import AuthApp from "app/auth";
+import UnAuthApp from "app/unauth";
 import ROUTES from "./routes/Routes";
-import AppLayout from "./applayout/AppLayout";
-import { Suspense } from "react";
-import Loader from "components/Loader/Loader";
 
 function App() {
-  const privateRoutes = Object.values(ROUTES).filter(
-    (route) => route.isPrivate === true
-  );
+  const { user } = useAuth();
+
   const publicRoutes = Object.values(ROUTES).filter(
     (route) => route.isPrivate !== true
   );
 
-  return (
-    <Suspense fallback={<Loader />}>
-      <Router>
-        {/* Authenticated */}
-        <Switch>
-          <Route path="/p">
-            <AppLayout>
-              <Switch>
-                {privateRoutes.map((route) => {
-                  return (
-                    <Route
-                      path={route.path}
-                      component={route.component}
-                      exact={route.exact}
-                    />
-                  );
-                })}
-              </Switch>
-            </AppLayout>
-          </Route>
-          {/* Un - Authenticated(Public) */}
-          <Route path="/">
-            <Switch>
-              {publicRoutes.map((route) => {
-                return (
-                  <Route
-                    path={route.path}
-                    exact={route.exact}
-                    component={route.component}
-                  />
-                );
-              })}
-            </Switch>
-          </Route>
-        </Switch>
-      </Router>
-    </Suspense>
-  );
+  const authPages = [ROUTES.login.path, ROUTES.register.path];
+  const pathname = window.location.pathname;
+
+  const isPublic = publicRoutes.includes(pathname);
+  const isNotAuthPage = !authPages.includes(pathname);
+
+  //--> If user isn't authenticated 'OR' user is authenticated but requesting to view public pages(eg: /about or /terms)
+  return !user || (isPublic && !isNotAuthPage) ? <UnAuthApp /> : <AuthApp />;
+
+  //--> OR
+  //--> If user is authenticated but requesting to view public pages(eg: /about or /terms)
+  // if (isPublic && !isNotAuthPage) {
+  //   return <UnAuthApp />;
+  // }
+
+  // return !user ? <UnAuthApp /> : <AuthApp />;
 }
 
 export default App;
