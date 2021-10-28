@@ -1,3 +1,4 @@
+import { UserProvider } from "contexts/UserContext";
 import React from "react";
 import styled from "styled-components";
 import Footer from "./Footer/Footer";
@@ -6,15 +7,16 @@ import Sidebar from "./Sidebar/Sidebar";
 
 function AppLayout({ children }) {
   return (
-    <Container>
-      <Sidebar />
-
-      <section>
-        <Header />
-        <Content>{children}</Content>
-        <Footer />
-      </section>
-    </Container>
+    <UserProvider>
+      <Container>
+        <Sidebar />
+        <section>
+          <Header />
+          <Content>{children}</Content>
+          <Footer />
+        </section>
+      </Container>
+    </UserProvider>
   );
 }
 
